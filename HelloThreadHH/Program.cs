@@ -67,6 +67,8 @@ namespace HelloThreadHH
 
             // 多播委托
             thermostat.onTempratureChange += heater.OnTempratureChanged;
+            // 故意使用异常，让委托报错，测试委托链时候任然可正常工作, 这里使用lambda表达式
+            thermostat.onTempratureChange += (newtemprature) => { throw new ApplicationException(); };
             thermostat.onTempratureChange += cooler.OnTempratureChanged;
 
             Console.Write("Enter temprature: ");

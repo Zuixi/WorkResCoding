@@ -36,10 +36,31 @@ namespace HelloThreadHH.DelegateObserver
             {
                 if (value != CurrentTemprature)
                 {
-                    _CurrentTemprature = value;
+                    // 调用一个委托之前，必须判断其之前是否为控制，不然有可能会引发异常
 
+                    /****************
+                    _CurrentTemprature = value;
                     // 告诉订阅者温度发生变化
                     onTempratureChange(_CurrentTemprature);
+                    ********************************/
+
+                    _CurrentTemprature = value;
+
+                    if (onTempratureChange != null)
+                    {
+                        // 为了避免订阅者发生异常而中断，导致后面的订阅者不能继续操作，必须手动遍历订阅者列表，并且单独调用他们
+                        foreach(TempratureChangeHandler handler in onTempratureChange.GetInvocationList())
+                        {
+                            try
+                            {
+                                handler(value);
+                            }
+                            catch (Exception exception)
+                            {
+                                Console.WriteLine(exception.Message);
+                            }
+                        }
+                    }
                 }
             }
         }
