@@ -46,6 +46,7 @@
     <Compile Include="DelegateObserver\Cooler.cs" />
     <Compile Include="DelegateObserver\TempratureArgs.cs" />
     <Compile Include="DelegateObserver\Thermostat.cs" />
+    <Compile Include="LockThread\SharedState.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

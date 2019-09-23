@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using HelloThreadHH.DelegateObserver;
+using HelloThreadHH.LockThread;
 namespace HelloThreadHH
 {
     class Program
@@ -28,6 +29,8 @@ namespace HelloThreadHH
         static void Main(string[] args)
         {
             Console.WriteLine("Hello,World");
+
+#if ASYN
             /*
             // asynchronous by using a delegatel
             TakesAWhileDelegate dl = TakesAWhile;
@@ -38,8 +41,24 @@ namespace HelloThreadHH
                 Thread.Sleep(50);
             }
             */
-    
+#endif
+            int numTask = 20;
+            var state = new SharedState();
+            var tasks = new Task[numTask];
 
+            for (int i = 0; i < numTask; i++)
+            {
+                tasks[i] = new Task(new Job(state).DoTheJob);
+                tasks[i].Start();
+            }
+
+            for (int i = 0; i < numTask; i++)
+            {
+                tasks[i].Wait();
+            }
+
+            Console.WriteLine("summarized in thread {0}", state.State);
+#if Test
             Thermostat thermostat = new Thermostat();
             Heater heater = new Heater(40);
             Cooler cooler = new Cooler(70);
@@ -109,7 +128,8 @@ namespace HelloThreadHH
 
             // 只在任务失败是得到执行
             Task a5 = a1.ContinueWith(DoOnSecond, TaskContinuationOptions.OnlyOnFaulted);
-
+            
+#endif
             Console.ReadLine();
         }
 
