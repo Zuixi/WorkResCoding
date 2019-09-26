@@ -49,6 +49,9 @@
     <Compile Include="LockThread\SharedState.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReShapeCode\MovieRenderSample\Customer.cs" />
+    <Compile Include="ReShapeCode\MovieRenderSample\Movie.cs" />
+    <Compile Include="ReShapeCode\MovieRenderSample\Rental.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using HelloThreadHH.DelegateObserver;
 using HelloThreadHH.LockThread;
+using System.Diagnostics;
 namespace HelloThreadHH
 {
     class Program
@@ -42,6 +43,27 @@ namespace HelloThreadHH
             }
             */
 #endif
+            // 使用信号量实现同步问题；
+            // 定义线程的锁定个数
+            int threadCount = 6;
+            int semphoreCount = 4;
+            var semaphore = new SemaphoreSlim(semphoreCount, semphoreCount);
+            var threads = new Thread[threadCount];
+
+            for (int i = 0; i < threadCount; i++)
+            {
+                threads[i] = new Thread(ThreadMain);
+                // 使用信号量
+                threads[i].Start(semaphore);
+            }
+
+            for (int i= 0; i < threadCount; i++)
+            {
+                threads[i].Join();
+            }
+
+            Console.WriteLine(" all threads finished!");
+
             int numTask = 20;
             var state = new SharedState();
             var tasks = new Task[numTask];
@@ -133,8 +155,33 @@ namespace HelloThreadHH
             Console.ReadLine();
         }
 
-        static void ThreadMain()
+        static void ThreadMain( object obj)
         {
+            // 使用信号量锁定线程
+            SemaphoreSlim semaphore = obj as SemaphoreSlim;
+            Trace.Assert(semaphore != null, " obj must be a semaphore type");
+            bool isCompleted = false;
+            while (!isCompleted)
+            {
+                if (semaphore.Wait(600))
+                {
+                    try
+                    {
+                        Console.WriteLine("Thread {0} locks the semaphore", Thread.CurrentThread.ManagedThreadId);
+                        Thread.Sleep(2000);
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                        Console.WriteLine("Thread {0} release the semaphore", Thread.CurrentThread.ManagedThreadId);
+                        isCompleted = true;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Timeout for thread {0}; wait again", Thread.CurrentThread.ManagedThreadId);
+                }
+            }
             Console.WriteLine("Running in a thread!");
         }
 
