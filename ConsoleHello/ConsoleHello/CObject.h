@@ -15,24 +15,71 @@ struct CRuntimeClass
 {
 	LPSTR m_lpszClassName;
 	int m_nObjecSize;
+	UINT m_wSchema;    // schema number of the load class
+	CObject* (PASCAL* m_pfnCreateObject)();    // NULL => abstract class
+	CRuntimeClass* m_pBaseClass;
+
+	// CRuntimeClass Object linked together in simple list
+	static CRuntimeClass* pFirstClass;    // start of the class list
+	CRuntimeClass* m_pNextClass;    // linked list of register classes
 };
+
+struct AFX_CLASSINIT
+{
+	AFX_CLASSINIT(CRuntimeClass* pNewClass);
+};
+
+#define RUNTIME_CLASS(className) \
+	(&className::class##className)
+
+#define DECLARE_DYNAMIC(className) \
+public: \
+	static CRuntimeClass class##className; \
+	virtual CRuntimeClass* GetRunTimeClass() const;
+
+#define _IMPLEMENT_RUNTIMECLASS(className,baseClassName,cShema,pfnNew) \
+	static char _lpsz##className[] = #className; \	
+	CRuntimeClass className::class##className =(\
+		_lpsz##className,sizeof(className),cSchema,pfnNew,\
+			RUNTIME_CLASS(baseClassName,NULL);\
+
+		static AFX_CLASSINIT _init_##className(&className::class##className); \
+	CRuntimeClass* className::GetRunTimeClass() const\
+		{
+		return &className::class##className;
+	    }
+	\
+
+#define IMPLEMENT_DYNAMIC(className,baseClassName) \
+	_IMPLEMENT_RUNTIMECLASS(className,baseClassName,0xFFFF,NULL)
+
+)
+
+
 
 class CObject
 {
 public:
 	CObject();
 	~CObject();
+	virtual CRuntimeClass* GetRunTimeClass() const;
+
+public:
+	static CRuntimeClass classCObject;
 };
 
 class CCmdTarget :public CObject
 {
+	DECLARE_DYNAMIC(CCmdTarget)
 public:
 	CCmdTarget();
 	~CCmdTarget();
+
 };
 
 class CWinThread :public CCmdTarget
 {
+	DECLARE_DYNAMIC(CWinThread)
 public:
 	CWinThread();
 	~CWinThread();
@@ -54,6 +101,7 @@ public:
 
 class CWinAPP :public CWinThread
 {
+	DECLARE_DYNAMIC(CWinAPP)
 public:
 	CWinAPP* m_pCurrentWinApp;
 	CWnd* m_pMainnd;
@@ -83,6 +131,7 @@ public:
 
 class CDocument :public CCmdTarget
 {
+	DECLARE_DYNAMIC(CDocment)
 public:
 	CDocument()
 	{
@@ -97,6 +146,7 @@ public:
 
 class CWnd :public CCmdTarget
 {
+	DECLARE_DYNAMIC(CWnd)
 public:
 	CWnd()
 	{
@@ -116,6 +166,7 @@ public:
 
 class CFrameWnd :public CWnd
 {
+	DECLARE_DYNAMIC(CFrameWnd)
 public:
 	CFrameWnd()
 	{
@@ -133,6 +184,7 @@ public:
 
 class CView :public CWnd
 {
+	DECLARE_DYNAMIC(CView)
 public:
 	CView()
 	{
