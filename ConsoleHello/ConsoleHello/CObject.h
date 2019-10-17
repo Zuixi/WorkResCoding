@@ -1,5 +1,22 @@
 #pragma once
 #include <iostream>
+
+#define BOOL int
+#define TRUE 1
+#define FALSE 0
+#define LPCSTR LPSTR
+typedef char* LPSTR;
+#define UINT int
+#define PASCAL _stdcall
+
+
+class CObject;
+struct CRuntimeClass
+{
+	LPSTR m_lpszClassName;
+	int m_nObjecSize;
+};
+
 class CObject
 {
 public:
