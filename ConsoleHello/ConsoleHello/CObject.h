@@ -9,6 +9,28 @@ typedef char* LPSTR;
 #define UINT int
 #define PASCAL _stdcall
 
+/* 
+关于宏定义的一些说明：
+
+	## 表示连接两个符号，从而产生新的符号， eg X##Y => XY 
+	#@x 表示给x加上单引号 返回一个char
+	#x 表示给x加上双引号,返回一个string
+
+	\ 表示宏体需要换行 ，相当于宏函数
+    ; 分号在宏定义中存在分号吞噬问题；
+	
+	#undef 宏名 取消宏定义
+
+
+	#ifdef
+	#else
+	#elig
+	#endif
+
+
+
+*/
+
 
 class CObject;
 struct CRuntimeClass
@@ -39,21 +61,17 @@ public: \
 
 #define _IMPLEMENT_RUNTIMECLASS(className,baseClassName,cShema,pfnNew) \
 	static char _lpsz##className[] = #className; \	
-	CRuntimeClass className::class##className =(\
-		_lpsz##className,sizeof(className),cSchema,pfnNew,\
-			RUNTIME_CLASS(baseClassName,NULL);\
-
+	CRuntimeClass className::class##className ={ \
+		lpszclassName , sizeof(className) , cSchema , pfnNew, RUNTIME_CLASS(baseClassName) , NULL};\
 		static AFX_CLASSINIT _init_##className(&className::class##className); \
 	CRuntimeClass* className::GetRunTimeClass() const\
 		{
-		return &className::class##className;
-	    }
-	\
+		    return &className::class##className;
+	    }\
+	
 
-#define IMPLEMENT_DYNAMIC(className,baseClassName) \
+#define IMPLEMENT_DYNAMIC(className,baseClassName) \  
 	_IMPLEMENT_RUNTIMECLASS(className,baseClassName,0xFFFF,NULL)
-
-)
 
 
 
@@ -62,7 +80,7 @@ class CObject
 public:
 	CObject();
 	~CObject();
-	virtual CRuntimeClass* GetRunTimeClass() const;
+	virtual CRuntimeClass* GetRunTimeClass() const;  
 
 public:
 	static CRuntimeClass classCObject;
